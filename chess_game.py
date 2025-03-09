@@ -1,7 +1,16 @@
 import tkinter as tk
 import chess
-import chess.engine
-from tkinter import messagebox
+import chess.svg
+from PIL import Image, ImageTk
+import io
+
+def update_board():
+    board_svg = chess.svg.board(board)
+    img = Image.open(io.BytesIO(board_svg.encode("utf-8")))
+    img = img.resize((400, 400))
+    board_image = ImageTk.PhotoImage(img)
+    board_label.config(image=board_image)
+    board_label.image = board_image
 
 def make_move():
     move = move_entry.get()
@@ -10,14 +19,11 @@ def make_move():
         update_board()
         move_entry.delete(0, tk.END)
         if board.is_checkmate():
-            messagebox.showinfo("Game Over", "Checkmate! Game Over.")
+            tk.messagebox.showinfo("Game Over", "Checkmate! Game Over.")
         elif board.is_stalemate():
-            messagebox.showinfo("Game Over", "Stalemate! Game Over.")
+            tk.messagebox.showinfo("Game Over", "Stalemate! Game Over.")
     except ValueError:
-        messagebox.showerror("Invalid Move", "Please enter a valid move in SAN notation.")
-
-def update_board():
-    board_text.set(str(board))
+        tk.messagebox.showerror("Invalid Move", "Please enter a valid move in SAN notation.")
 
 # Initialize game board
 board = chess.Board()
@@ -25,10 +31,9 @@ board = chess.Board()
 # Create main window
 root = tk.Tk()
 root.title("Chess Game")
-root.geometry("400x400")
+root.geometry("500x500")
 
-board_text = tk.StringVar()
-board_label = tk.Label(root, textvariable=board_text, font=("Courier", 12), justify="left")
+board_label = tk.Label(root)
 board_label.pack(pady=10)
 
 move_entry = tk.Entry(root, width=20)
