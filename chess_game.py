@@ -1,46 +1,40 @@
 import tkinter as tk
-import chess
-import chess.svg
-from PIL import Image, ImageTk
-import io
 
-def update_board():
-    board_svg = chess.svg.board(board)
-    img = Image.open(io.BytesIO(board_svg.encode("utf-8")))
-    img = img.resize((400, 400))
-    board_image = ImageTk.PhotoImage(img)
-    board_label.config(image=board_image)
-    board_label.image = board_image
-
-def make_move():
-    move = move_entry.get()
-    try:
-        board.push_san(move)
-        update_board()
-        move_entry.delete(0, tk.END)
-        if board.is_checkmate():
-            tk.messagebox.showinfo("Game Over", "Checkmate! Game Over.")
-        elif board.is_stalemate():
-            tk.messagebox.showinfo("Game Over", "Stalemate! Game Over.")
-    except ValueError:
-        tk.messagebox.showerror("Invalid Move", "Please enter a valid move in SAN notation.")
-
-# Initialize game board
-board = chess.Board()
+def on_click(button_text):
+    current_text = entry_var.get()
+    if button_text == "C":
+        entry_var.set("")
+    elif button_text == "=":
+        try:
+            result = eval(current_text)
+            entry_var.set(result)
+        except Exception as e:
+            entry_var.set("Error")
+    else:
+        entry_var.set(current_text + str(button_text))
 
 # Create main window
 root = tk.Tk()
-root.title("Chess Game")
-root.geometry("500x500")
+root.title("Basic Calculator")
 
-board_label = tk.Label(root)
-board_label.pack(pady=10)
+entry_var = tk.StringVar()
+entry = tk.Entry(root, textvariable=entry_var, font=("Arial", 18), bd=10, relief=tk.GROOVE, justify="right")
+entry.grid(row=0, column=0, columnspan=4)
 
-move_entry = tk.Entry(root, width=20)
-move_entry.pack(pady=5)
+buttons = [
+    ("7", 1, 0), ("8", 1, 1), ("9", 1, 2), ("/", 1, 3),
+    ("4", 2, 0), ("5", 2, 1), ("6", 2, 2), ("*", 2, 3),
+    ("1", 3, 0), ("2", 3, 1), ("3", 3, 2), ("-", 3, 3),
+    ("0", 4, 0), ("C", 4, 1), ("=", 4, 2), ("+", 4, 3),
+]
 
-move_button = tk.Button(root, text="Make Move", command=make_move)
-move_button.pack(pady=5)
+for (text, row, col) in buttons:
+    button = tk.Button(root, text=text, font=("Arial", 18), padx=20, pady=20, command=lambda t=text: on_click(t))
+    button.grid(row=row, column=col, sticky="nsew")
 
-update_board()
+# Adjust column and row weights
+for i in range(5):
+    root.grid_rowconfigure(i, weight=1)
+    root.grid_columnconfigure(i, weight=1)
+
 root.mainloop()
